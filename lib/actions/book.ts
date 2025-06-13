@@ -16,11 +16,15 @@ export const borrowBook = async (params: BorrowBookParams) => {
       .limit(1);
 
     if (!book.length || book[0].availableCopies <= 0) {
-      return { success: false, error: "This book is currently not available" };
+      return {
+        success: false,
+        error: "Book is not available for borrowing",
+      };
     }
+
     const dueDate = dayjs().add(7, "day").toDate().toDateString();
 
-    const record = db.insert(borrowRecords).values({
+    const record = await db.insert(borrowRecords).values({
       userId,
       bookId,
       dueDate,
@@ -35,13 +39,13 @@ export const borrowBook = async (params: BorrowBookParams) => {
     return {
       success: true,
       data: JSON.parse(JSON.stringify(record)),
-      message: "Book borrowed successfully!",
     };
   } catch (error) {
     console.log(error);
+
     return {
       success: false,
-      error: `An error occured while borrowing the book ${error}`,
+      error: "An error occurred while borrowing the book",
     };
   }
 };
